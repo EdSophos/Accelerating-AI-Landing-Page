@@ -54,7 +54,7 @@ export class ConfluenceAPI {
 
     while (hasMore) {
       const cql = `label = "${label}" AND status = current`;
-      const url = `${this.baseUrl}/api/v3/content/search?cql=${encodeURIComponent(
+      const url = `${this.baseUrl}/rest/api/content/search?cql=${encodeURIComponent(
         cql
       )}&start=${start}&limit=${limit}&expand=body.view,metadata.labels`;
 

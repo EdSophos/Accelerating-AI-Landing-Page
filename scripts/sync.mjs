@@ -34,7 +34,7 @@ async function fetchAllProjects(baseUrl, token) {
 
   while (true) {
     const cql = `label = "${LABEL}" AND status = current`;
-    const url = `${baseUrl}/api/v3/content/search?cql=${encodeURIComponent(cql)}&start=${start}&limit=${LIMIT}&expand=body.view,metadata.labels`;
+    const url = `${baseUrl}/rest/api/content/search?cql=${encodeURIComponent(cql)}&start=${start}&limit=${LIMIT}&expand=body.view,metadata.labels`;
 
     const res = await fetch(url, {
       headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
