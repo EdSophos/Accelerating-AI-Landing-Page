@@ -139,12 +139,13 @@ export class ConfluenceAPI {
   }
 
   private extractDescription(html: string): string {
-    const pMatch = html.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
+    const noTables = html.replace(/<table[\s\S]*?<\/table>/gi, '');
+    const pMatch = noTables.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
     if (pMatch) {
       const text = this.stripHtml(pMatch[1]).trim();
       if (text.length > 10) return text.substring(0, 200);
     }
-    return this.stripHtml(html).substring(0, 150).trim() || 'No description available';
+    return this.stripHtml(noTables).substring(0, 150).trim() || 'No description available';
   }
 }
 

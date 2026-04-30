@@ -29,13 +29,14 @@ function stripHtml(html) {
 }
 
 function extractDescription(html) {
-  // Skip tables at the top of the page; find the first real paragraph
-  const pMatch = html.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
+  // Remove tables first so we don't pick up table-cell <p> content
+  const noTables = html.replace(/<table[\s\S]*?<\/table>/gi, '');
+  const pMatch = noTables.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
   if (pMatch) {
     const text = stripHtml(pMatch[1]).trim();
     if (text.length > 10) return text.substring(0, 200);
   }
-  return stripHtml(html).substring(0, 150).trim() || 'No description available';
+  return stripHtml(noTables).substring(0, 150).trim() || 'No description available';
 }
 
 async function fetchAllProjects(baseUrl, email, token) {
