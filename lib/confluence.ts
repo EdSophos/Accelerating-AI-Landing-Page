@@ -24,7 +24,9 @@ interface ConfluencePageResponse {
     };
   };
   metadata?: {
-    labels?: Array<{ name: string }>;
+    labels?: {
+      results: Array<{ name: string }>;
+    };
   };
 }
 
@@ -109,7 +111,7 @@ export class ConfluenceAPI {
     const description = plainText.substring(0, 150).trim();
 
     // Extract tags from metadata labels
-    const tags = page.metadata?.labels?.map((label) => label.name) || [];
+    const tags = page.metadata?.labels?.results?.map((label) => label.name) || [];
 
     // Generate thumbnail URL (Confluence page preview)
     const thumbnailUrl = `${this.baseUrl}/pages/thumbnail.action?pageId=${page.id}`;

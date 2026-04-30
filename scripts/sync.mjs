@@ -52,7 +52,7 @@ async function fetchAllProjects(baseUrl, email, token) {
       const resolved = webLink.startsWith('http') ? webLink : `${baseUrl}${webLink}`;
       const fullLink = /^https?:\/\//i.test(resolved) ? resolved : '#';
       const description = stripHtml(page.body?.view?.value ?? '').substring(0, 150).trim();
-      const tags = (page.metadata?.labels ?? []).map((l) => l.name);
+      const tags = (page.metadata?.labels?.results ?? []).map((l) => l.name);
 
       projects.push({
         id: page.id,
