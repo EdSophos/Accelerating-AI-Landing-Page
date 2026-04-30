@@ -154,10 +154,12 @@ The current GitHub Actions workflow builds a static export and publishes the `ou
 
 ### Environment Variables
 
-Add these as GitHub Actions secrets (Repo Settings → Secrets):
-- `CONFLUENCE_API_TOKEN` — Atlassian API token (Basic auth with `CONFLUENCE_EMAIL`)
+Add these as GitHub Actions secrets and variables (Repo Settings → Secrets and variables → Actions):
 
-The workflow currently sets `CONFLUENCE_EMAIL` directly in `.github/workflows/sync-and-deploy.yml`. If that account changes, update the workflow or move the email to a repository variable.
+| Type | Name | Purpose |
+|------|------|---------|
+| Secret | `CONFLUENCE_API_TOKEN` | Atlassian API token (Basic auth) |
+| Variable | `CONFLUENCE_EMAIL` | Account email paired with the API token |
 
 NextAuth/Azure AD variables are only needed for local development or a future server-hosted deployment path. They are not used by the static production export.
 
@@ -171,11 +173,10 @@ The broader team label is not sufficient for portal publication. Apply `accelera
 
 **Current Data Model:** Each project currently includes:
 - Title from the Confluence page title
-- Description derived from the first 150 characters of the page body
-- Link to the Confluence page
-- Thumbnail from the Confluence page preview URL
+- Description extracted from the first `<p>` paragraph after stripping table content (skips page-header tables; falls back to first 150 characters of stripped body)
+- Link to the Confluence page (validated as `https?://` before use)
 - Status, currently always `active`
-- Tags copied from Confluence labels
+- Tags copied from Confluence labels (`accelerating-ai-portal-approved` is hidden from the UI as a sync-control label)
 
 **Metadata Governance Target:** Issue [#7](https://github.com/EdSophos/Accelerating-AI-Landing-Page/issues/7) tracks the next hardening step. The portal should publish only explicit portal-safe metadata:
 - Approved display title
@@ -227,7 +228,9 @@ This project is tracked as GitHub issues for each phase:
 - [x] **Phase 3:** UI components + client-side search
 - [x] **Phase 4:** Optional server-hosted auth setup (Azure AD / NextAuth)
 - [x] **Phase 5:** GitHub Actions CI/CD (automated sync & deploy)
-- ⏳ **Phase 6:** Testing + refinement
+- [x] **Phase 6:** Security hardening — URL validation, SHA-pinned actions, official GitHub Pages deployment (OIDC, no `contents:write`), `CONFLUENCE_EMAIL` moved to repo variable, Confluence labels API shape fix, `lastSynced` footer bug fixed (issues [#8](https://github.com/EdSophos/Accelerating-AI-Landing-Page/issues/8)–[#13](https://github.com/EdSophos/Accelerating-AI-Landing-Page/issues/13))
+- [x] **Phase 7:** Sophos-branded tile UI — coloured headers, paragraph-based description extraction, portal label hidden ([#14](https://github.com/EdSophos/Accelerating-AI-Landing-Page/issues/14))
+- ⏳ **Phase 8:** Metadata schema hardening — explicit portal-safe fields ([#7](https://github.com/EdSophos/Accelerating-AI-Landing-Page/issues/7))
 
 See the [Issues](https://github.com/EdSophos/Accelerating-AI-Landing-Page/issues) tab for detailed task tracking.
 
@@ -241,12 +244,11 @@ See the [Issues](https://github.com/EdSophos/Accelerating-AI-Landing-Page/issues
 - Clear filters button
 
 #### ProjectCard (`components/ProjectCard.tsx`)
-- Displays individual project with thumbnail
-- Shows title and description preview
-- Displays up to 3 tags (with +N indicator for overflow)
-- Status badge (green/amber)
+- Sophos-branded colour header (5-colour palette: Deep Navy, Sophos Blue, Cyan, Navy, Bright Blue — cycled by index)
+- Shows title and description preview (first real paragraph from Confluence page)
+- Displays up to 3 content tags (portal approval label hidden); +N indicator for overflow
+- Tags and footer link colour-matched to tile header
 - Hover effects and direct link to Confluence source
-- Image optimization via Next.js Image component
 
 #### ProjectGrid (`components/ProjectGrid.tsx`)
 - Responsive grid layout: 1 col (mobile) → 2 col (tablet) → 3 col (desktop)
@@ -337,6 +339,6 @@ Internal Sophos tool. Not for external distribution.
 
 ---
 
-**Status:** Static portal under active hardening; production hosting should be Sophos-controlled and internal-only
+**Status:** Security-hardened; Sophos-branded UI live; metadata schema hardening in progress
 **Last Updated:** April 30, 2026
 **Maintained by:** Accelerating AI Team @ Sophos
