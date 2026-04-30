@@ -107,8 +107,7 @@ export class ConfluenceAPI {
 
     // Extract description from page body (first 150 chars)
     const bodyHtml = page.body?.view?.value || '';
-    const plainText = this.stripHtml(bodyHtml);
-    const description = plainText.substring(0, 150).trim();
+    const description = this.extractDescription(bodyHtml);
 
     // Extract tags from metadata labels
     const tags = page.metadata?.labels?.results?.map((label) => label.name) || [];
@@ -129,13 +128,23 @@ export class ConfluenceAPI {
 
   private stripHtml(html: string): string {
     return html
-      .replace(/<[^>]*>/g, '') // Remove HTML tags
-      .replace(/&nbsp;/g, ' ') // Replace non-breaking spaces
-      .replace(/&amp;/g, '&') // Decode ampersands
-      .replace(/&lt;/g, '<') // Decode less-than
-      .replace(/&gt;/g, '>') // Decode greater-than
-      .replace(/&quot;/g, '"') // Decode quotes
+      .replace(/<[^>]*>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/\s+/g, ' ')
       .trim();
+  }
+
+  private extractDescription(html: string): string {
+    const pMatch = html.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
+    if (pMatch) {
+      const text = this.stripHtml(pMatch[1]).trim();
+      if (text.length > 10) return text.substring(0, 200);
+    }
+    return this.stripHtml(html).substring(0, 150).trim() || 'No description available';
   }
 }
 

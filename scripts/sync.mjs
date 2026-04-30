@@ -24,7 +24,18 @@ function stripHtml(html) {
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
+    .replace(/\s+/g, ' ')
     .trim();
+}
+
+function extractDescription(html) {
+  // Skip tables at the top of the page; find the first real paragraph
+  const pMatch = html.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
+  if (pMatch) {
+    const text = stripHtml(pMatch[1]).trim();
+    if (text.length > 10) return text.substring(0, 200);
+  }
+  return stripHtml(html).substring(0, 150).trim() || 'No description available';
 }
 
 async function fetchAllProjects(baseUrl, email, token) {
@@ -51,7 +62,7 @@ async function fetchAllProjects(baseUrl, email, token) {
       const webLink = page._links?.webui ?? '';
       const resolved = webLink.startsWith('http') ? webLink : `${baseUrl}${webLink}`;
       const fullLink = /^https?:\/\//i.test(resolved) ? resolved : '#';
-      const description = stripHtml(page.body?.view?.value ?? '').substring(0, 150).trim();
+      const description = extractDescription(page.body?.view?.value ?? '');
       const tags = (page.metadata?.labels?.results ?? []).map((l) => l.name);
 
       projects.push({
