@@ -206,7 +206,7 @@ This project is tracked as GitHub issues for each phase:
 - [x] **Phase 1:** Repo setup + Next.js initialization
 - [x] **Phase 2:** Confluence API integration (fetch + sync endpoint)
 - [x] **Phase 3:** UI components + client-side search
-- ⏳ **Phase 4:** Authentication setup (Azure AD SSO)
+- [x] **Phase 4:** Authentication setup (Azure AD SSO)
 - ⏳ **Phase 5:** GitHub Actions CI/CD (automated sync & deploy)
 - ⏳ **Phase 6:** Testing + refinement
 
@@ -241,6 +241,26 @@ See the [Issues](https://github.com/EdSophos/Accelerating-AI-Landing-Page/issues
 - Displays result counter
 - Sticky header and footer
 - Error handling and loading states
+
+#### Header Component (`components/Header.tsx`)
+- Displays authenticated user info (name, email, avatar)
+- Dropdown menu with sign-out button
+- Sticky positioning at top of page
+- Responsive design for mobile/tablet/desktop
+
+#### Authentication System
+- **Provider:** Azure AD via next-auth v4
+- **Sign-in Page:** `/auth/signin` (custom branded page)
+- **Session Management:** SessionProvider wraps entire app
+- **Protected Routes:** All pages require authentication
+- **Sign-in Flow:**
+  1. User visits site
+  2. Redirected to `/auth/signin` if not authenticated
+  3. Clicks "Sign in with Sophos" button
+  4. Redirected to Azure AD login
+  5. After auth, returns to home page with session
+  6. User info displays in header
+  7. Can sign out from dropdown menu
 
 ### Contributing
 
