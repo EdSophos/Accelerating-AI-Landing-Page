@@ -106,25 +106,31 @@ GitHub Pages (deployed site)
 ```
 ├── pages/
 │   ├── api/
-│   │   ├── auth/[...nextauth].ts    # SSO routes
-│   │   └── confluence/sync.ts       # Data sync endpoint
-│   ├── _app.tsx                     # App wrapper
-│   ├── _document.tsx                # Document wrapper
-│   └── index.tsx                    # Home page
+│   │   ├── auth/[...nextauth].ts    # SSO routes (Phase 4)
+│   │   └── confluence/
+│   │       └── sync.ts              # Data sync endpoint
+│   ├── _app.tsx                     # Next.js app wrapper
+│   ├── _document.tsx                # Next.js document wrapper
+│   └── index.tsx                    # Home page with search
 ├── components/
-│   ├── SearchBar.tsx                # Search + filters
-│   ├── ProjectCard.tsx              # Project card UI
-│   └── ProjectGrid.tsx              # Grid layout
+│   ├── SearchBar.tsx                # Search + status/tag filters
+│   ├── ProjectCard.tsx              # Individual project card
+│   └── ProjectGrid.tsx              # Responsive grid layout
 ├── lib/
-│   ├── confluence.ts                # Confluence API wrapper
-│   └── auth.ts                      # Azure AD config
+│   ├── confluence.ts                # Confluence API wrapper class
+│   └── auth.ts                      # Azure AD config (Phase 4)
 ├── styles/
-│   └── globals.css                  # Global Tailwind styles
+│   └── globals.css                  # Tailwind CSS directives
 ├── public/
-│   └── data/
-│       └── projects.json            # Synced Confluence data
-└── .github/workflows/
-    └── sync-and-deploy.yml          # GitHub Actions CI/CD
+│   ├── data/
+│   │   └── projects.json            # Synced projects data (auto-generated)
+│   └── [next.js assets]
+├── .github/workflows/
+│   └── sync-and-deploy.yml          # GitHub Actions (Phase 5)
+├── .env.local.example               # Environment template
+├── CLAUDE.md                        # Project conventions
+├── package.json                     # Dependencies
+└── tsconfig.json                    # TypeScript config
 ```
 
 ## Deployment
@@ -167,14 +173,29 @@ Add these as GitHub Actions secrets (Repo Settings → Secrets):
 - Status (active/archived)
 - Tags (from Confluence labels)
 
-### Search
+### Search & Filtering
 
-Search is **client-side** and filters projects by:
-- Title (prefix match)
-- Description (keyword match)
-- Tags (exact match)
+Search is **100% client-side** — no backend calls. All filtering happens in the browser in real-time:
 
-No backend required — all processing happens in the browser.
+**Text Search:**
+- Searches project title, description, and tags
+- Case-insensitive keyword matching
+- Results update as you type
+
+**Status Filter:**
+- Active (default) — show active projects only
+- Archived — show archived projects
+- All — show both active and archived
+
+**Tag Filtering:**
+- Multi-select: choose one or more tags
+- Projects must match ALL selected tags
+- Tags auto-extracted from Confluence labels
+
+**Performance:**
+- Instant filtering on any device
+- No network requests during search
+- Works offline (after initial page load)
 
 ## Development Workflow
 
@@ -183,13 +204,43 @@ No backend required — all processing happens in the browser.
 This project is tracked as GitHub issues for each phase:
 
 - [x] **Phase 1:** Repo setup + Next.js initialization
-- ⏳ **Phase 2:** Confluence API integration
-- ⏳ **Phase 3:** UI components + search
-- ⏳ **Phase 4:** Authentication setup
-- ⏳ **Phase 5:** GitHub Actions CI/CD
+- [x] **Phase 2:** Confluence API integration (fetch + sync endpoint)
+- [x] **Phase 3:** UI components + client-side search
+- ⏳ **Phase 4:** Authentication setup (Azure AD SSO)
+- ⏳ **Phase 5:** GitHub Actions CI/CD (automated sync & deploy)
 - ⏳ **Phase 6:** Testing + refinement
 
 See the [Issues](https://github.com/EdSophos/Accelerating-AI-Landing-Page/issues) tab for detailed task tracking.
+
+### UI Components
+
+#### SearchBar (`components/SearchBar.tsx`)
+- Text search across project title, description, and tags
+- Status filter: Active / Archived / All
+- Multi-select tag filtering
+- Real-time filtering as user types
+- Clear filters button
+
+#### ProjectCard (`components/ProjectCard.tsx`)
+- Displays individual project with thumbnail
+- Shows title, description preview (150 chars)
+- Displays up to 3 tags (with +N indicator for overflow)
+- Status badge (green/amber)
+- Hover effects and direct link to Confluence source
+- Image optimization via Next.js Image component
+
+#### ProjectGrid (`components/ProjectGrid.tsx`)
+- Responsive grid layout: 1 col (mobile) → 2 col (tablet) → 3 col (desktop)
+- Loading skeleton animation
+- Empty state message when no projects match filters
+
+#### Home Page (`pages/index.tsx`)
+- Loads projects from `public/data/projects.json`
+- Auto-extracts all unique tags from projects
+- Implements client-side search and filtering
+- Displays result counter
+- Sticky header and footer
+- Error handling and loading states
 
 ### Contributing
 
