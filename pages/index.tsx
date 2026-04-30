@@ -8,6 +8,7 @@ import { Project } from '@/lib/confluence';
 interface ProjectsData {
   lastSynced: string;
   count: number;
+  skipped?: number;
   projects: Project[];
 }
 
@@ -75,12 +76,21 @@ export default function Home() {
     // Filter by search query
     if (filters.query.trim()) {
       const q = filters.query.toLowerCase();
-      results = results.filter(
-        (p) =>
-          p.title.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          p.tags.some((tag) => tag.toLowerCase().includes(q))
-      );
+      results = results.filter((p) => {
+        const searchableText = [
+          p.title,
+          p.description,
+          p.category,
+          p.audience,
+          p.owner,
+          ...p.tags,
+          ...(p.searchKeywords ?? []),
+        ]
+          .join(' ')
+          .toLowerCase();
+
+        return searchableText.includes(q);
+      });
     }
 
     setFilteredProjects(results);

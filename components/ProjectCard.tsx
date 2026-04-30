@@ -8,8 +8,6 @@ const SOPHOS_COLORS = [
   '#0073CF', // Bright Blue
 ];
 
-const PORTAL_LABEL = 'accelerating-ai-portal-approved';
-
 interface ProjectCardProps {
   project: Project;
   index: number;
@@ -17,7 +15,6 @@ interface ProjectCardProps {
 
 export default function ProjectCard({ project, index }: ProjectCardProps) {
   const color = SOPHOS_COLORS[index % SOPHOS_COLORS.length];
-  const visibleTags = project.tags.filter((t) => t !== PORTAL_LABEL);
   const initial = project.title.charAt(0).toUpperCase();
 
   return (
@@ -46,14 +43,24 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
           {project.title}
         </h3>
 
+        <div className="flex flex-wrap gap-2 mb-3">
+          {[project.category, project.audience].map((value) => (
+            <span
+              key={value}
+              className="inline-block px-2 py-1 text-xs font-medium bg-slate-100 text-slate-700 rounded-full"
+            >
+              {value}
+            </span>
+          ))}
+        </div>
+
         <p className="text-sm text-slate-600 mb-4 line-clamp-3 flex-1">
           {project.description}
         </p>
 
-        {/* Tags — portal approval label hidden */}
-        {visibleTags.length > 0 && (
+        {project.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
-            {visibleTags.slice(0, 3).map((tag) => (
+            {project.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
                 className="inline-block px-2 py-1 text-xs font-medium text-white rounded-full"
@@ -62,18 +69,21 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
                 {tag}
               </span>
             ))}
-            {visibleTags.length > 3 && (
+            {project.tags.length > 3 && (
               <span className="inline-block px-2 py-1 text-xs bg-slate-100 text-slate-600 rounded-full font-medium">
-                +{visibleTags.length - 3}
+                +{project.tags.length - 3}
               </span>
             )}
           </div>
         )}
 
         {/* Footer link */}
-        <div className="flex items-center justify-end pt-4 border-t border-slate-100">
+        <div className="flex items-center justify-between gap-3 pt-4 border-t border-slate-100">
+          <span className="text-xs font-medium text-slate-500 truncate">
+            {project.owner}
+          </span>
           <span
-            className="text-sm font-semibold group-hover:translate-x-1 transition-transform"
+            className="text-sm font-semibold group-hover:translate-x-1 transition-transform shrink-0"
             style={{ color }}
           >
             View in Confluence →

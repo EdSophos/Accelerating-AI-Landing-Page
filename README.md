@@ -56,7 +56,7 @@ NEXTAUTH_AZURE_AD_CLIENT_ID=your_client_id
 NEXTAUTH_AZURE_AD_CLIENT_SECRET=your_client_secret
 ```
 
-If the local template does not include `CONFLUENCE_EMAIL`, add it manually; both the local API wrapper and sync script require the email/token pair for Confluence Basic auth.
+Both the local API wrapper and sync script require the `CONFLUENCE_EMAIL` and `CONFLUENCE_API_TOKEN` pair for Confluence Basic auth.
 
 ### Development
 
@@ -169,48 +169,54 @@ NextAuth/Azure AD variables are only needed for local development or a future se
 
 **Mandatory approval label:** Pages must be labeled `accelerating-ai-portal-approved` in Confluence to appear on the landing page.
 
-The broader team label is not sufficient for portal publication. Apply `accelerating-ai-portal-approved` only after the page title, summary, labels, link, and thumbnail are appropriate for the full portal audience.
+The broader team label is not sufficient for portal publication. Apply `accelerating-ai-portal-approved` only after the page has explicit portal-safe metadata approved for the full portal audience.
 
-**Current Data Model:** Each project currently includes:
-- Title from the Confluence page title
-- Description extracted from the first `<p>` paragraph after stripping table content (skips page-header tables; falls back to first 150 characters of stripped body)
-- Link to the Confluence page (validated as `https?://` before use)
-- Status, currently always `active`
-- Tags copied from Confluence labels (`accelerating-ai-portal-approved` is hidden from the UI as a sync-control label)
+**Portal metadata table:** Approved pages must include a Confluence table with these fields. The sync looks for the `Portal summary` field as the marker that this is the portal metadata table.
 
-**Metadata Governance Target:** Issue [#7](https://github.com/EdSophos/Accelerating-AI-Landing-Page/issues/7) tracks the next hardening step. The portal should publish only explicit portal-safe metadata:
-- Approved display title
-- Portal-safe one-sentence summary
-- Category from a controlled set
-- Intended audience
-- Owner team or mailbox
-- Status
-- Approved search keywords
-- `updatedAt` or `lastReviewedAt`
-- Confluence link
-- Approved generic/category thumbnail or explicitly approved image
+| Field | Required | Allowed values / format |
+|------|----------|--------------------------|
+| `Portal title` | No | Optional approved display title. If omitted, the Confluence page title is used. |
+| `Portal summary` | Yes | One-sentence summary approved for portal-wide display. Raw page body excerpts are never used as fallback copy. |
+| `Category` | Yes | `Playbook`, `Tool`, `Dashboard`, `Training`, or `Roadmap` |
+| `Audience` | Yes | `Engineering`, `Sales`, `Exec`, `Customer Success`, or `All Sophos` |
+| `Owner` | Yes | Team name, owner alias, or mailbox responsible for the page. |
+| `Status` | Yes | `Active`, `Draft`, `Archived`, or `Coming soon` |
+| `Search keywords` | No | Comma- or semicolon-separated approved keywords. |
+| `Last reviewed` | No | Human-readable review date or ISO date. |
+| `Thumbnail` | No | Absolute `https://` URL for an explicitly approved image. Page-preview thumbnails are not generated automatically. |
 
-Raw Confluence body excerpts, arbitrary labels, comments, attachments, and page-preview thumbnails should not be treated as portal-safe by default.
+**Controlled topic labels:** Display/filter tags come only from Confluence labels prefixed with `portal-topic-`. For example, `portal-topic-ai-governance` appears as `AI Governance`. Arbitrary Confluence labels are not published as tags.
+
+**Current Data Model:** Each project includes:
+- Title from `Portal title`, falling back to the Confluence page title
+- Description from `Portal summary`
+- Link to the Confluence page, validated as an absolute `https://` URL
+- Category, audience, owner, status, approved search keywords, and optional last-reviewed date
+- Tags derived only from `portal-topic-*` labels
+- Optional approved thumbnail URL
+
+Approved pages missing required metadata, using invalid controlled values, or specifying a non-HTTPS thumbnail are skipped during sync with a maintainer-facing log message. Raw Confluence body excerpts, arbitrary labels, comments, attachments, and page-preview thumbnails are not treated as portal-safe by default.
 
 ### Search & Filtering
 
 Search is **100% client-side** — no backend calls. All filtering happens in the browser in real-time:
 
 **Text Search:**
-- Searches project title, description, and tags
+- Searches project title, portal summary, category, audience, owner, controlled topic tags, and approved search keywords
 - Case-insensitive keyword matching
 - Results update as you type
 
 **Status Filter:**
 - Active (default) — show active projects only
+- Draft — show draft projects
 - Archived — show archived projects
-- All — show both active and archived
+- Coming soon — show coming-soon projects
+- All — show all status values
 
 **Tag Filtering:**
 - Multi-select: choose one or more tags
 - Projects match if they include any selected tag
-- Tags are currently auto-extracted from Confluence labels
-- Future metadata hardening should replace arbitrary labels with controlled portal topics
+- Tags are derived only from `portal-topic-*` Confluence labels
 
 **Performance:**
 - Instant filtering on any device
@@ -230,23 +236,23 @@ This project is tracked as GitHub issues for each phase:
 - [x] **Phase 5:** GitHub Actions CI/CD (automated sync & deploy)
 - [x] **Phase 6:** Security hardening — URL validation, SHA-pinned actions, official GitHub Pages deployment (OIDC, no `contents:write`), `CONFLUENCE_EMAIL` moved to repo variable, Confluence labels API shape fix, `lastSynced` footer bug fixed (issues [#8](https://github.com/EdSophos/Accelerating-AI-Landing-Page/issues/8)–[#13](https://github.com/EdSophos/Accelerating-AI-Landing-Page/issues/13))
 - [x] **Phase 7:** Sophos-branded tile UI — coloured headers, paragraph-based description extraction, portal label hidden ([#14](https://github.com/EdSophos/Accelerating-AI-Landing-Page/issues/14))
-- ⏳ **Phase 8:** Metadata schema hardening — explicit portal-safe fields ([#7](https://github.com/EdSophos/Accelerating-AI-Landing-Page/issues/7))
+- [x] **Phase 8:** Metadata schema hardening — explicit portal-safe fields, controlled topic labels, and skipped-page validation ([#7](https://github.com/EdSophos/Accelerating-AI-Landing-Page/issues/7))
 
 See the [Issues](https://github.com/EdSophos/Accelerating-AI-Landing-Page/issues) tab for detailed task tracking.
 
 ### UI Components
 
 #### SearchBar (`components/SearchBar.tsx`)
-- Text search across project title, description, and tags
-- Status filter: Active / Archived / All
-- Multi-select tag filtering
+- Text search across project title, portal summary, category, audience, owner, controlled topic tags, and approved search keywords
+- Status filter: Active / Draft / Archived / Coming soon / All
+- Multi-select controlled topic filtering
 - Real-time filtering as user types
 - Clear filters button
 
 #### ProjectCard (`components/ProjectCard.tsx`)
 - Sophos-branded colour header (5-colour palette: Deep Navy, Sophos Blue, Cyan, Navy, Bright Blue — cycled by index)
-- Shows title and description preview (first real paragraph from Confluence page)
-- Displays up to 3 content tags (portal approval label hidden); +N indicator for overflow
+- Shows approved title, category, audience, portal summary, and owner
+- Displays up to 3 controlled topic tags; +N indicator for overflow
 - Tags and footer link colour-matched to tile header
 - Hover effects and direct link to Confluence source
 
@@ -339,6 +345,6 @@ Internal Sophos tool. Not for external distribution.
 
 ---
 
-**Status:** Security-hardened; Sophos-branded UI live; metadata schema hardening in progress
+**Status:** Security-hardened; Sophos-branded UI live; explicit portal metadata schema enforced
 **Last Updated:** April 30, 2026
 **Maintained by:** Accelerating AI Team @ Sophos

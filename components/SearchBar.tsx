@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { ProjectStatus } from '@/lib/confluence';
 
 interface SearchBarProps {
   onSearch: (query: string, filters: SearchFilters) => void;
@@ -8,8 +9,18 @@ interface SearchBarProps {
 export interface SearchFilters {
   query: string;
   tags: string[];
-  status: 'all' | 'active' | 'archived';
+  status: StatusFilter;
 }
+
+type StatusFilter = 'all' | ProjectStatus;
+
+const STATUS_OPTIONS: Array<{ value: StatusFilter; label: string }> = [
+  { value: 'active', label: 'Active' },
+  { value: 'draft', label: 'Draft' },
+  { value: 'archived', label: 'Archived' },
+  { value: 'coming-soon', label: 'Coming soon' },
+  { value: 'all', label: 'All' },
+];
 
 export default function SearchBar({
   onSearch,
@@ -17,14 +28,12 @@ export default function SearchBar({
 }: SearchBarProps) {
   const [query, setQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'archived'>(
-    'active'
-  );
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('active');
 
   const handleSearch = (
     newQuery?: string,
     newTags?: string[],
-    newStatus?: 'all' | 'active' | 'archived'
+    newStatus?: StatusFilter
   ) => {
     const q = newQuery !== undefined ? newQuery : query;
     const tags = newTags !== undefined ? newTags : selectedTags;
@@ -69,21 +78,21 @@ export default function SearchBar({
         <label className="block text-sm font-medium text-slate-700 mb-3">
           Status
         </label>
-        <div className="flex gap-3">
-          {(['active', 'archived', 'all'] as const).map((status) => (
+        <div className="flex flex-wrap gap-3">
+          {STATUS_OPTIONS.map(({ value, label }) => (
             <button
-              key={status}
+              key={value}
               onClick={() => {
-                setStatusFilter(status);
-                handleSearch(query, selectedTags, status);
+                setStatusFilter(value);
+                handleSearch(query, selectedTags, value);
               }}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                statusFilter === status
+                statusFilter === value
                   ? 'bg-blue-500 text-white'
                   : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
               }`}
             >
-              {status.charAt(0).toUpperCase() + status.slice(1)}
+              {label}
             </button>
           ))}
         </div>
