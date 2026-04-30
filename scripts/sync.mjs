@@ -42,7 +42,8 @@ async function fetchAllProjects(baseUrl, email, token) {
     });
 
     if (!res.ok) {
-      throw new Error(`Confluence API ${res.status}: ${res.statusText}`);
+      const body = await res.text();
+      throw new Error(`Confluence API ${res.status}: ${res.statusText}\n${body.substring(0, 500)}`);
     }
 
     const data = await res.json();
