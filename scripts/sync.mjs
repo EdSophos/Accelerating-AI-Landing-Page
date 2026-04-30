@@ -33,7 +33,7 @@ async function fetchAllProjects(baseUrl, email, token) {
   let start = 0;
 
   while (true) {
-    const cql = `label = "${LABEL}" AND status = current`;
+    const cql = `label = "${LABEL}" AND type = page`;
     const url = `${baseUrl}/rest/api/content/search?cql=${encodeURIComponent(cql)}&start=${start}&limit=${LIMIT}&expand=body.view,metadata.labels`;
 
     const credentials = Buffer.from(`${email}:${token}`).toString('base64');
