@@ -49,7 +49,8 @@ async function fetchAllProjects(baseUrl, email, token) {
 
     for (const page of data.results) {
       const webLink = page._links?.webui ?? '';
-      const fullLink = webLink.startsWith('http') ? webLink : `${baseUrl}${webLink}`;
+      const resolved = webLink.startsWith('http') ? webLink : `${baseUrl}${webLink}`;
+      const fullLink = /^https?:\/\//i.test(resolved) ? resolved : '#';
       const description = stripHtml(page.body?.view?.value ?? '').substring(0, 150).trim();
       const tags = (page.metadata?.labels ?? []).map((l) => l.name);
 

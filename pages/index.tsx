@@ -17,6 +17,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [lastSynced, setLastSynced] = useState<string | null>(null);
 
   // Load projects on mount
   useEffect(() => {
@@ -33,6 +34,7 @@ export default function Home() {
         const data: ProjectsData = await response.json();
         setAllProjects(data.projects);
         setFilteredProjects(data.projects);
+        setLastSynced(data.lastSynced || null);
 
         // Extract unique tags
         const tags = new Set<string>();
@@ -142,15 +144,7 @@ export default function Home() {
           <div className="container mx-auto px-4 text-center text-sm">
             <p>
               Last synced:{' '}
-              {allProjects.length > 0
-                ? new Date(
-                    (
-                      JSON.parse(
-                        localStorage.getItem('projectsData') || '{}'
-                      ) as ProjectsData
-                    ).lastSynced || new Date()
-                  ).toLocaleString()
-                : 'Never'}
+              {lastSynced ? new Date(lastSynced).toLocaleString() : 'Never'}
             </p>
             <p className="mt-2 text-slate-400">
               Accelerating AI Team • Sophos

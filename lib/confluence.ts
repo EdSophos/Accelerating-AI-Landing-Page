@@ -100,9 +100,8 @@ export class ConfluenceAPI {
 
   private convertPageToProject(page: ConfluencePageResponse): Project {
     const webLink = page._links?.webui || '';
-    const fullLink = webLink.startsWith('http')
-      ? webLink
-      : `${this.baseUrl}${webLink}`;
+    const resolved = webLink.startsWith('http') ? webLink : `${this.baseUrl}${webLink}`;
+    const fullLink = /^https?:\/\//i.test(resolved) ? resolved : '#';
 
     // Extract description from page body (first 150 chars)
     const bodyHtml = page.body?.view?.value || '';
