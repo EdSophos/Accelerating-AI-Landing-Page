@@ -11,10 +11,9 @@
 
 import { writeFileSync, mkdirSync } from 'fs';
 import { dirname } from 'path';
-import { fileURLToPath } from 'url';
 
 const OUTPUT_PATH = new URL('../public/data/projects.json', import.meta.url).pathname;
-const LABEL = 'Accelerating AI Team';
+const PORTAL_APPROVED_LABEL = 'accelerating-ai-portal-approved';
 const LIMIT = 25;
 
 function stripHtml(html) {
@@ -33,7 +32,7 @@ async function fetchAllProjects(baseUrl, email, token) {
   let start = 0;
 
   while (true) {
-    const cql = `label = "${LABEL}" AND type = page`;
+    const cql = `label = "${PORTAL_APPROVED_LABEL}" AND type = page`;
     const url = `${baseUrl}/rest/api/content/search?cql=${encodeURIComponent(cql)}&start=${start}&limit=${LIMIT}&expand=body.view,metadata.labels`;
 
     const credentials = Buffer.from(`${email}:${token}`).toString('base64');
@@ -82,7 +81,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`🦆 Syncing Confluence projects labeled "${LABEL}"...`);
+  console.log(`🦆 Syncing Confluence projects labeled "${PORTAL_APPROVED_LABEL}"...`);
   const projects = await fetchAllProjects(baseUrl, email, token);
   console.log(`   Fetched ${projects.length} projects`);
 

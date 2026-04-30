@@ -1,4 +1,5 @@
 import { useSession, signOut } from 'next-auth/react';
+import Image from 'next/image';
 import { useState } from 'react';
 
 export default function Header() {
@@ -11,7 +12,7 @@ export default function Header() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900">🚀 Accelerating AI</h1>
           <p className="text-sm text-slate-600">
-            Discover the AI Acceleration team's products and projects
+            Discover the AI Acceleration team&apos;s products and projects
           </p>
         </div>
 
@@ -23,10 +24,13 @@ export default function Header() {
               className="flex items-center gap-3 bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-lg transition-colors"
             >
               {session.user.image && (
-                <img
+                <Image
                   src={session.user.image}
                   alt={session.user.name || 'User'}
+                  width={32}
+                  height={32}
                   className="w-8 h-8 rounded-full"
+                  unoptimized
                 />
               )}
               <div className="text-left">

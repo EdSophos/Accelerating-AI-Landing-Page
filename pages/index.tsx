@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import Head from 'next/head';
 import SearchBar, { SearchFilters } from '@/components/SearchBar';
 import ProjectGrid from '@/components/ProjectGrid';

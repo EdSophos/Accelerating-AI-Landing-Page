@@ -37,7 +37,7 @@ export default async function handler(
     // Create directory if it doesn't exist
     try {
       await mkdir(outputDir, { recursive: true });
-    } catch (err) {
+    } catch {
       // Directory might already exist, ignore error
     }
 

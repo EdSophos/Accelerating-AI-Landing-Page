@@ -9,6 +9,8 @@ export interface Project {
   tags: string[];
 }
 
+const PORTAL_APPROVED_LABEL = 'accelerating-ai-portal-approved';
+
 interface ConfluencePageResponse {
   id: string;
   title: string;
@@ -148,5 +150,5 @@ export async function getConfluenceProjects(): Promise<Project[]> {
   }
 
   const confluence = new ConfluenceAPI(baseUrl, email, token);
-  return confluence.fetchProjectsByLabel('Accelerating AI Team');
+  return confluence.fetchProjectsByLabel(PORTAL_APPROVED_LABEL);
 }
