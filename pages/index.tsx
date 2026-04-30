@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import Head from 'next/head';
 import SearchBar, { SearchFilters } from '@/components/SearchBar';
 import ProjectGrid from '@/components/ProjectGrid';
+import Header from '@/components/Header';
 import { Project } from '@/lib/confluence';
 
 interface ProjectsData {
@@ -94,17 +96,8 @@ export default function Home() {
       </Head>
 
       <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
-        {/* Header */}
-        <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
-          <div className="container mx-auto px-4 py-6">
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">
-              🚀 Accelerating AI
-            </h1>
-            <p className="text-slate-600">
-              Discover the Accelerating AI team's products and projects
-            </p>
-          </div>
-        </header>
+        {/* Header with Auth */}
+        <Header />
 
         {/* Main Content */}
         <div className="container mx-auto px-4 py-12">
