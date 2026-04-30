@@ -42,6 +42,7 @@ Then configure:
 ```env
 # Confluence
 CONFLUENCE_BASE_URL=https://sophos.atlassian.net/wiki
+CONFLUENCE_EMAIL=your_email@sophos.com
 CONFLUENCE_API_TOKEN=your_api_token
 
 # Next.js Auth
@@ -84,11 +85,11 @@ Confluence API (labeled pages)
          ↓
 GitHub Actions (every 4 hours)
          ↓
-Sync Endpoint (/api/confluence/sync)
+scripts/sync.mjs (pre-build Confluence fetch)
          ↓
 JSON file (public/data/projects.json)
          ↓
-Next.js Frontend (client-side search)
+Next.js static build (next build → out/)
          ↓
 GitHub Pages (deployed site)
 ```
@@ -153,7 +154,7 @@ The site is deployed to GitHub Pages and automatically synced every 4 hours.
 ### Environment Variables
 
 Add these as GitHub Actions secrets (Repo Settings → Secrets):
-- `CONFLUENCE_API_TOKEN`
+- `CONFLUENCE_API_TOKEN` — Atlassian API token (Basic auth with `CONFLUENCE_EMAIL`)
 - `NEXTAUTH_SECRET`
 - `NEXTAUTH_AZURE_AD_TENANT_ID`
 - `NEXTAUTH_AZURE_AD_CLIENT_ID`
@@ -207,7 +208,7 @@ This project is tracked as GitHub issues for each phase:
 - [x] **Phase 2:** Confluence API integration (fetch + sync endpoint)
 - [x] **Phase 3:** UI components + client-side search
 - [x] **Phase 4:** Authentication setup (Azure AD SSO)
-- ⏳ **Phase 5:** GitHub Actions CI/CD (automated sync & deploy)
+- [x] **Phase 5:** GitHub Actions CI/CD (automated sync & deploy)
 - ⏳ **Phase 6:** Testing + refinement
 
 See the [Issues](https://github.com/EdSophos/Accelerating-AI-Landing-Page/issues) tab for detailed task tracking.
@@ -325,6 +326,6 @@ Internal Sophos tool. Not for external distribution.
 
 ---
 
-**Status:** In development  
+**Status:** Live — [https://edsophos.github.io/Accelerating-AI-Landing-Page/](https://edsophos.github.io/Accelerating-AI-Landing-Page/)  
 **Last Updated:** April 29, 2026  
 **Maintained by:** Accelerating AI Team @ Sophos
