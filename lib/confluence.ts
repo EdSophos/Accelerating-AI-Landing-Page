@@ -35,15 +35,18 @@ interface ConfluenceSearchResponse {
 
 export class ConfluenceAPI {
   private baseUrl: string;
+  private email: string;
   private token: string;
 
-  constructor(baseUrl: string, token: string) {
+  constructor(baseUrl: string, email: string, token: string) {
     this.baseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    this.email = email;
     this.token = token;
   }
 
   private getAuthHeader(): string {
-    return `Bearer ${this.token}`;
+    const credentials = Buffer.from(`${this.email}:${this.token}`).toString('base64');
+    return `Basic ${credentials}`;
   }
 
   async fetchProjectsByLabel(label: string): Promise<Project[]> {
@@ -135,14 +138,15 @@ export class ConfluenceAPI {
 
 export async function getConfluenceProjects(): Promise<Project[]> {
   const baseUrl = process.env.CONFLUENCE_BASE_URL;
+  const email = process.env.CONFLUENCE_EMAIL;
   const token = process.env.CONFLUENCE_API_TOKEN;
 
-  if (!baseUrl || !token) {
+  if (!baseUrl || !email || !token) {
     throw new Error(
-      'Missing Confluence configuration (CONFLUENCE_BASE_URL or CONFLUENCE_API_TOKEN)'
+      'Missing Confluence configuration (CONFLUENCE_BASE_URL, CONFLUENCE_EMAIL, or CONFLUENCE_API_TOKEN)'
     );
   }
 
-  const confluence = new ConfluenceAPI(baseUrl, token);
+  const confluence = new ConfluenceAPI(baseUrl, email, token);
   return confluence.fetchProjectsByLabel('Accelerating AI Team');
 }

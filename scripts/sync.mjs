@@ -28,7 +28,7 @@ function stripHtml(html) {
     .trim();
 }
 
-async function fetchAllProjects(baseUrl, token) {
+async function fetchAllProjects(baseUrl, email, token) {
   const projects = [];
   let start = 0;
 
@@ -36,8 +36,9 @@ async function fetchAllProjects(baseUrl, token) {
     const cql = `label = "${LABEL}" AND status = current`;
     const url = `${baseUrl}/rest/api/content/search?cql=${encodeURIComponent(cql)}&start=${start}&limit=${LIMIT}&expand=body.view,metadata.labels`;
 
+    const credentials = Buffer.from(`${email}:${token}`).toString('base64');
     const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+      headers: { Authorization: `Basic ${credentials}`, Accept: 'application/json' },
     });
 
     if (!res.ok) {
@@ -72,15 +73,16 @@ async function fetchAllProjects(baseUrl, token) {
 
 async function main() {
   const baseUrl = (process.env.CONFLUENCE_BASE_URL ?? '').replace(/\/$/, '');
+  const email = process.env.CONFLUENCE_EMAIL;
   const token = process.env.CONFLUENCE_API_TOKEN;
 
-  if (!baseUrl || !token) {
-    console.error('❌ Missing CONFLUENCE_BASE_URL or CONFLUENCE_API_TOKEN');
+  if (!baseUrl || !email || !token) {
+    console.error('❌ Missing CONFLUENCE_BASE_URL, CONFLUENCE_EMAIL, or CONFLUENCE_API_TOKEN');
     process.exit(1);
   }
 
   console.log(`🦆 Syncing Confluence projects labeled "${LABEL}"...`);
-  const projects = await fetchAllProjects(baseUrl, token);
+  const projects = await fetchAllProjects(baseUrl, email, token);
   console.log(`   Fetched ${projects.length} projects`);
 
   mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
