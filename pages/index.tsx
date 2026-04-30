@@ -24,7 +24,8 @@ export default function Home() {
     const loadProjects = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('/data/projects.json');
+        const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+        const response = await fetch(`${basePath}/data/projects.json`);
 
         if (!response.ok) {
           throw new Error('Failed to load projects');
